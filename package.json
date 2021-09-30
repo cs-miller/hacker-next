@@ -2,13 +2,29 @@
   "name": "hacker-next",
   "version": "1.0.0",
   "description": "yet another hacker news client",
-  "scripts": {},
+  "author": "Christopher Miller",
+  "license": "MIT",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "next": "^11.1.2",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
+  },
+  "devDependencies": {
+    "@types/react": "^17.0.26",
+    "eslint": "7.32.0",
+    "eslint-config-next": "11.1.2",
+    "typescript": "^4.4.3"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/cs-miller/hacker-next.git"
   },
-  "author": "Christopher Miller",
-  "license": "MIT",
   "bugs": {
     "url": "https://github.com/cs-miller/hacker-next/issues"
   },
