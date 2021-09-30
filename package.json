@@ -1,0 +1,16 @@
+{
+  "name": "hacker-next",
+  "version": "1.0.0",
+  "description": "yet another hacker news client",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cs-miller/hacker-next.git"
+  },
+  "author": "Christopher Miller",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/cs-miller/hacker-next/issues"
+  },
+  "homepage": "https://github.com/cs-miller/hacker-next#readme"
+}
