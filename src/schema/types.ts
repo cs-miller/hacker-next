@@ -1,75 +1,53 @@
-import { enumType, interfaceType, objectType, queryType } from "nexus";
+import {
+  arg,
+  enumType,
+  idArg,
+  interfaceType,
+  nonNull,
+  objectType,
+  queryType,
+  unionType,
+} from "nexus";
+import { connectionFromArray, fromGlobalId } from "graphql-relay";
 
 export const Node = interfaceType({
   name: "Node",
   definition(t) {
-    t.nonNull.id("id", { description: "GUID for a resource" });
+    t.nonNull.id("id", {
+      description: "GUID for a resource",
+    });
   },
-});
-
-export const ItemTypeEnum = enumType({
-  name: "ItemTypeEnum",
-  members: ["job", "story", "comment", "poll", "pollopt"],
+  // TODO: refine ts types here
+  // @ts-ignore
+  resolveType(source) {
+    const { type } = fromGlobalId(source.id);
+    return type;
+  },
 });
 
 export const Item = interfaceType({
   name: "Item",
   definition(t) {
-    // t.id('id', {description: "The item's unique id."})
-    t.boolean("deleted", { description: "`true` if the item is deleted." });
-    t.field("type", {
-      type: "ItemTypeEnum",
-      description:
-        "The type of item. One of 'job', 'story', 'comment', 'poll', or 'pollopt'.",
-    });
-    t.field("by", {
-      type: "User",
-      description: "The username of the item's author.",
-    });
-    t.string("time", {
-      description: "Creation date of the item, in Unix Time.",
-    });
-    t.string("text", { description: "The comment, story or poll text. HTML." });
-    t.boolean("dead", { description: "`true` if the item is dead." });
-    t.field("parent", {
-      type: "Item",
-      description:
-        "The comment's parent: either another comment or the relevant story.",
-      resolve() {
-        return {};
+    t.nonNull.id("hnID", {
+      description: "The item's unique id.",
+      resolve(source) {
+        return source.id;
       },
     });
-    t.field("poll", {
-      type: "Item",
-      description: "The pollopt's associated poll.",
-      resolve() {
-        return {};
-      },
-    });
-    t.list.field("kids", {
-      type: "Item",
-      description: "The ids of the item's comments, in ranked display order.",
-      resolve() {
-        return [];
-      },
-    });
-    t.string("url", { description: "The URL of the story." });
-    t.int("score", {
-      description: "The story's score, or the votes for a pollopt.",
-    });
-    t.string("title", {
-      description: "The title of the story, poll or job. HTML.",
-    });
-    t.list.field("parts", {
-      type: "Item",
-      description: "A list of related pollopts, in display order.",
-      resolve() {
-        return [];
-      },
-    });
-    t.int("descendants", {
-      description: "In the case of stories or polls, the total comment count.",
-    });
+  },
+  resolveType(source) {
+    // TODO: use [backing types](https://nexusjs.org/docs/adoption-guides/nexus-framework-users#backing-types-type-discovery)
+    // @ts-ignore
+    switch (source.type) {
+      case "story":
+        return "Story";
+      case "comment":
+        return "Comment";
+      case "job":
+        return "Job";
+      default:
+        throw new Error("unable to resolve type");
+    }
   },
 });
 
@@ -79,8 +57,8 @@ export const User = objectType({
     t.implements("Node");
     t.nonNull.string("username", {
       description: "The user's unique username. Case-sensitive. Required.",
-      resolve(parent) {
-        return parent.id;
+      resolve(source) {
+        return source.id;
       },
     });
     t.nonNull.string("created", {
@@ -92,11 +70,161 @@ export const User = objectType({
     t.string("about", {
       description: "The user's optional self-description. HTML.",
     });
-    t.list.field("submitted", {
+    t.connectionField("submitted", {
       type: "Item",
       description: "List of the user's stories, polls and comments.",
+      resolve(source, args, context, info) {
+        return connectionFromArray([], args);
+      },
+    });
+  },
+});
+
+export const Story = objectType({
+  name: "Story",
+  definition(t) {
+    t.implements("Node");
+    t.implements("Item");
+
+    t.boolean("deleted", { description: "`true` if the item is deleted." });
+    t.field("by", {
+      type: "User",
+      description: "The username of the item's author.",
+    });
+    t.string("time", {
+      description: "Creation date of the item, in Unix Time.",
+    });
+    t.string("text", { description: "The comment, story or poll text. HTML." });
+    t.boolean("dead", { description: "`true` if the item is dead." });
+    t.connectionField("kids", {
+      type: "Comment",
+      description: "The ids of the item's comments, in ranked display order.",
+      resolve(source, args, context, info) {
+        return connectionFromArray([], args);
+      },
+    });
+    t.string("url", { description: "The URL of the story." });
+    t.int("score", {
+      description: "The story's score, or the votes for a pollopt.",
+    });
+    t.string("title", {
+      description: "The title of the story, poll or job. HTML.",
+    });
+    t.int("descendants", {
+      description: "In the case of stories or polls, the total comment count.",
+    });
+  },
+});
+
+export const Comment = objectType({
+  name: "Comment",
+  definition(t) {
+    t.implements("Node");
+    t.implements("Item");
+
+    t.boolean("deleted", { description: "`true` if the item is deleted." });
+    t.field("by", {
+      type: "User",
+      description: "The username of the item's author.",
+    });
+    t.string("time", {
+      description: "Creation date of the item, in Unix Time.",
+    });
+    t.string("text", { description: "The comment, story or poll text. HTML." });
+    t.boolean("dead", { description: "`true` if the item is dead." });
+    t.field("parent", {
+      type: unionType({
+        name: "Parent",
+        definition(t) {
+          t.members("Story", "Comment");
+        },
+        resolveType(source) {
+          switch (source.type) {
+            case "story":
+              return "Story";
+            case "comment":
+              return "Comment";
+            default:
+              throw new Error("invalid comment parent");
+          }
+        },
+      }),
+      description:
+        "The comment's parent: either another comment or the relevant story.",
       resolve() {
-        return [];
+        return null;
+      },
+    });
+    t.connectionField("kids", {
+      type: "Comment",
+      description: "The ids of the item's comments, in ranked display order.",
+      resolve(source, args, context, info) {
+        return connectionFromArray([], args);
+      },
+    });
+  },
+});
+
+export const Job = objectType({
+  name: "Job",
+  definition(t) {
+    t.implements("Node");
+    t.implements("Item");
+
+    t.boolean("deleted", { description: "`true` if the item is deleted." });
+    t.field("by", {
+      type: "User",
+      description: "The username of the item's author.",
+    });
+    t.string("time", {
+      description: "Creation date of the item, in Unix Time.",
+    });
+    t.string("text", { description: "The comment, story or poll text. HTML." });
+    t.boolean("dead", { description: "`true` if the item is dead." });
+    t.string("url", { description: "The URL of the story." });
+    t.int("score", {
+      description: "The story's score, or the votes for a pollopt.",
+    });
+    t.string("title", {
+      description: "The title of the story, poll or job. HTML.",
+    });
+  },
+});
+
+export const FeedTypeEnum = enumType({
+  name: "FeedTypeEnum",
+  members: ["top", "new", "best", "ask", "show", "jobs"],
+});
+
+export const Query = queryType({
+  definition(t) {
+    t.connectionField("feed", {
+      type: "Story",
+      description: "feed of stories",
+      additionalArgs: {
+        feedType: arg({
+          type: "FeedTypeEnum",
+          default: "top",
+        }),
+      },
+      resolve(source, args, context, info) {
+        return connectionFromArray([], args);
+      },
+    });
+
+    t.field("node", {
+      type: "Node",
+      args: {
+        id: nonNull(idArg()),
+      },
+      resolve(source, args, context, info) {
+        const { type, id } = fromGlobalId(args.id);
+        switch (type) {
+          case "User":
+            return context.getUser(id);
+          default:
+            return context.getItem(id);
+        }
       },
     });
   },
