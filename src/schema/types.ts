@@ -1,4 +1,4 @@
-import { enumType, interfaceType, objectType } from "nexus";
+import { enumType, interfaceType, objectType, queryType } from "nexus";
 
 export const Node = interfaceType({
   name: "Node",
@@ -31,9 +31,28 @@ export const Item = interfaceType({
     });
     t.string("text", { description: "The comment, story or poll text. HTML." });
     t.boolean("dead", { description: "`true` if the item is dead." });
-    // t.field('parent', {description: "The comment's parent: either another comment or the relevant story.")
-    // t.field('poll', {description: "The pollopt's associated poll.")
-    // t.field('kids', {description: "The ids of the item's comments, in ranked display order.")
+    t.field("parent", {
+      type: "Item",
+      description:
+        "The comment's parent: either another comment or the relevant story.",
+      resolve() {
+        return {};
+      },
+    });
+    t.field("poll", {
+      type: "Item",
+      description: "The pollopt's associated poll.",
+      resolve() {
+        return {};
+      },
+    });
+    t.list.field("kids", {
+      type: "Item",
+      description: "The ids of the item's comments, in ranked display order.",
+      resolve() {
+        return [];
+      },
+    });
     t.string("url", { description: "The URL of the story." });
     t.int("score", {
       description: "The story's score, or the votes for a pollopt.",
@@ -41,7 +60,13 @@ export const Item = interfaceType({
     t.string("title", {
       description: "The title of the story, poll or job. HTML.",
     });
-    // t.field("parts",	{description: "A list of related pollopts, in display order."})
+    t.list.field("parts", {
+      type: "Item",
+      description: "A list of related pollopts, in display order.",
+      resolve() {
+        return [];
+      },
+    });
     t.int("descendants", {
       description: "In the case of stories or polls, the total comment count.",
     });
@@ -52,6 +77,12 @@ export const User = objectType({
   name: "User",
   definition(t) {
     t.implements("Node");
+    t.nonNull.string("username", {
+      description: "The user's unique username. Case-sensitive. Required.",
+      resolve(parent) {
+        return parent.id;
+      },
+    });
     t.nonNull.string("created", {
       description: "Creation date of the user, in Unix Time.",
     });
@@ -61,9 +92,12 @@ export const User = objectType({
     t.string("about", {
       description: "The user's optional self-description. HTML.",
     });
-    // t.field('submitted', {description: "List of the user's stories, polls and comments."})
-    /*
-    id	The user's unique username. Case-sensitive. Required.
-     */
+    t.list.field("submitted", {
+      type: "Item",
+      description: "List of the user's stories, polls and comments.",
+      resolve() {
+        return [];
+      },
+    });
   },
 });
