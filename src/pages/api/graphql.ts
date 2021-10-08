@@ -3,7 +3,7 @@ import { ApolloServerPluginLandingPageGraphQLPlayground } from "apollo-server-co
 
 import type { NextApiRequest, NextApiResponse } from "next";
 
-import { schema } from "../../schema";
+import { schema } from "schema";
 
 const apolloServer = new ApolloServer({
   schema,
