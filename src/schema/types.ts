@@ -18,6 +18,7 @@ export const Node = interfaceType({
     });
   },
   // TODO: refine ts types here
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   resolveType(source) {
     const { type } = fromGlobalId(source.id);
@@ -37,6 +38,7 @@ export const Item = interfaceType({
   },
   resolveType(source) {
     // TODO: use [backing types](https://nexusjs.org/docs/adoption-guides/nexus-framework-users#backing-types-type-discovery)
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     switch (source.type) {
       case "story":
@@ -86,32 +88,32 @@ export const Story = objectType({
     t.implements("Node");
     t.implements("Item");
 
-    t.boolean("deleted", { description: "`true` if the item is deleted." });
+    t.boolean("deleted", { description: "`true` if the story is deleted." });
     t.field("by", {
       type: "User",
-      description: "The username of the item's author.",
+      description: "The story's author.",
     });
     t.string("time", {
-      description: "Creation date of the item, in Unix Time.",
+      description: "Creation date of the story, in Unix Time.",
     });
-    t.string("text", { description: "The comment, story or poll text. HTML." });
-    t.boolean("dead", { description: "`true` if the item is dead." });
+    t.string("text", { description: "The story text. HTML." });
+    t.boolean("dead", { description: "`true` if the story is dead." });
     t.connectionField("kids", {
       type: "Comment",
-      description: "The ids of the item's comments, in ranked display order.",
+      description: "The story's comments, in ranked display order.",
       resolve(source, args, context, info) {
         return connectionFromArray([], args);
       },
     });
     t.string("url", { description: "The URL of the story." });
     t.int("score", {
-      description: "The story's score, or the votes for a pollopt.",
+      description: "The story's score.",
     });
     t.string("title", {
-      description: "The title of the story, poll or job. HTML.",
+      description: "The title of the story. HTML.",
     });
     t.int("descendants", {
-      description: "In the case of stories or polls, the total comment count.",
+      description: "The total comment count.",
     });
   },
 });
@@ -122,16 +124,16 @@ export const Comment = objectType({
     t.implements("Node");
     t.implements("Item");
 
-    t.boolean("deleted", { description: "`true` if the item is deleted." });
+    t.boolean("deleted", { description: "`true` if the comment is deleted." });
     t.field("by", {
       type: "User",
-      description: "The username of the item's author.",
+      description: "The comment's author.",
     });
     t.string("time", {
-      description: "Creation date of the item, in Unix Time.",
+      description: "Creation date of the comment, in Unix Time.",
     });
-    t.string("text", { description: "The comment, story or poll text. HTML." });
-    t.boolean("dead", { description: "`true` if the item is dead." });
+    t.string("text", { description: "The comment text. HTML." });
+    t.boolean("dead", { description: "`true` if the comment is dead." });
     t.field("parent", {
       type: unionType({
         name: "Parent",
@@ -157,7 +159,7 @@ export const Comment = objectType({
     });
     t.connectionField("kids", {
       type: "Comment",
-      description: "The ids of the item's comments, in ranked display order.",
+      description: "The comment's comments, in ranked display order.",
       resolve(source, args, context, info) {
         return connectionFromArray([], args);
       },
@@ -171,22 +173,22 @@ export const Job = objectType({
     t.implements("Node");
     t.implements("Item");
 
-    t.boolean("deleted", { description: "`true` if the item is deleted." });
+    t.boolean("deleted", { description: "`true` if the job is deleted." });
     t.field("by", {
       type: "User",
-      description: "The username of the item's author.",
+      description: "The job's author.",
     });
     t.string("time", {
-      description: "Creation date of the item, in Unix Time.",
+      description: "Creation date of the job, in Unix Time.",
     });
-    t.string("text", { description: "The comment, story or poll text. HTML." });
-    t.boolean("dead", { description: "`true` if the item is dead." });
-    t.string("url", { description: "The URL of the story." });
+    t.string("text", { description: "The job text. HTML." });
+    t.boolean("dead", { description: "`true` if the job is dead." });
+    t.string("url", { description: "The URL of the job." });
     t.int("score", {
-      description: "The story's score, or the votes for a pollopt.",
+      description: "The jobs's score.",
     });
     t.string("title", {
-      description: "The title of the story, poll or job. HTML.",
+      description: "The title of the job. HTML.",
     });
   },
 });
