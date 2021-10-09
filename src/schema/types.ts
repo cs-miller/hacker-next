@@ -8,7 +8,8 @@ import {
   queryType,
   unionType,
 } from "nexus";
-import { connectionFromArray, fromGlobalId } from "graphql-relay";
+import { connectionFromArray, fromGlobalId, toGlobalId } from "graphql-relay";
+import { child, get, query } from "firebase/database";
 
 export const Node = interfaceType({
   name: "Node",
@@ -17,12 +18,18 @@ export const Node = interfaceType({
       description: "GUID for a resource",
     });
   },
-  // TODO: refine ts types here
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
   resolveType(source) {
-    const { type } = fromGlobalId(source.id);
-    return type;
+    if ("type" in source) {
+      switch (source.type) {
+        case "comment":
+          return "Comment";
+        case "story":
+          return "Story";
+        case "job":
+          return "Job";
+      }
+    }
+    return "User";
   },
 });
 
@@ -37,9 +44,6 @@ export const Item = interfaceType({
     });
   },
   resolveType(source) {
-    // TODO: use [backing types](https://nexusjs.org/docs/adoption-guides/nexus-framework-users#backing-types-type-discovery)
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
     switch (source.type) {
       case "story":
         return "Story";
@@ -47,8 +51,6 @@ export const Item = interfaceType({
         return "Comment";
       case "job":
         return "Job";
-      default:
-        throw new Error("unable to resolve type");
     }
   },
 });
@@ -57,6 +59,12 @@ export const User = objectType({
   name: "User",
   definition(t) {
     t.implements("Node");
+
+    t.nonNull.id("id", {
+      resolve(source) {
+        return toGlobalId("User", source.id);
+      },
+    });
     t.nonNull.string("username", {
       description: "The user's unique username. Case-sensitive. Required.",
       resolve(source) {
@@ -75,8 +83,19 @@ export const User = objectType({
     t.connectionField("submitted", {
       type: "Item",
       description: "List of the user's stories, polls and comments.",
-      resolve(source, args, context, info) {
-        return connectionFromArray([], args);
+      async resolve(source, args, context) {
+        const connection = connectionFromArray<string>(source.submitted, args);
+        const edges = await Promise.all(
+          connection.edges.map(async (edge) => {
+            const nodeSnapshot = await get(
+              query(child(context.db, `/item/${edge.node}`))
+            );
+            const node = nodeSnapshot.val();
+            return { ...edge, node };
+          })
+        );
+
+        return { ...connection, edges };
       },
     });
   },
@@ -85,13 +104,22 @@ export const User = objectType({
 export const Story = objectType({
   name: "Story",
   definition(t) {
-    t.implements("Node");
-    t.implements("Item");
+    t.implements("Node", "Item");
 
+    t.nonNull.id("id", {
+      resolve(source) {
+        return toGlobalId("Story", source.id);
+      },
+    });
     t.boolean("deleted", { description: "`true` if the story is deleted." });
     t.field("by", {
       type: "User",
       description: "The story's author.",
+      resolve(source, args, context) {
+        return get(query(child(context.db, `/user/${source.by}`))).then(
+          (snapshot) => snapshot.val()
+        );
+      },
     });
     t.string("time", {
       description: "Creation date of the story, in Unix Time.",
@@ -101,8 +129,19 @@ export const Story = objectType({
     t.connectionField("kids", {
       type: "Comment",
       description: "The story's comments, in ranked display order.",
-      resolve(source, args, context, info) {
-        return connectionFromArray([], args);
+      async resolve(source, args, context) {
+        const connection = connectionFromArray<string>(source.kids, args);
+        const edges = await Promise.all(
+          connection.edges.map(async (edge) => {
+            const nodeSnapshot = await get(
+              query(child(context.db, `/item/${edge.node}`))
+            );
+            const node = nodeSnapshot.val();
+            return { ...edge, node };
+          })
+        );
+
+        return { ...connection, edges };
       },
     });
     t.string("url", { description: "The URL of the story." });
@@ -121,13 +160,22 @@ export const Story = objectType({
 export const Comment = objectType({
   name: "Comment",
   definition(t) {
-    t.implements("Node");
-    t.implements("Item");
+    t.implements("Node", "Item");
 
+    t.nonNull.id("id", {
+      resolve(source) {
+        return toGlobalId("Comment", source.id);
+      },
+    });
     t.boolean("deleted", { description: "`true` if the comment is deleted." });
     t.field("by", {
       type: "User",
       description: "The comment's author.",
+      resolve(source, args, context) {
+        return get(query(child(context.db, `/user/${source.by}`))).then(
+          (snapshot) => snapshot.val()
+        );
+      },
     });
     t.string("time", {
       description: "Creation date of the comment, in Unix Time.",
@@ -153,15 +201,28 @@ export const Comment = objectType({
       }),
       description:
         "The comment's parent: either another comment or the relevant story.",
-      resolve() {
-        return null;
+      resolve(source, args, context) {
+        return get(query(child(context.db, `/item/${source.parent}`))).then(
+          (snapshot) => snapshot.val()
+        );
       },
     });
     t.connectionField("kids", {
       type: "Comment",
       description: "The comment's comments, in ranked display order.",
-      resolve(source, args, context, info) {
-        return connectionFromArray([], args);
+      async resolve(source, args, context) {
+        const connection = connectionFromArray<string>(source.kids, args);
+        const edges = await Promise.all(
+          connection.edges.map(async (edge) => {
+            const nodeSnapshot = await get(
+              query(child(context.db, `/item/${edge.node}`))
+            );
+            const node = nodeSnapshot.val();
+            return { ...edge, node };
+          })
+        );
+
+        return { ...connection, edges };
       },
     });
   },
@@ -170,13 +231,22 @@ export const Comment = objectType({
 export const Job = objectType({
   name: "Job",
   definition(t) {
-    t.implements("Node");
-    t.implements("Item");
+    t.implements("Node", "Item");
 
+    t.nonNull.id("id", {
+      resolve(source) {
+        return toGlobalId("Job", source.id);
+      },
+    });
     t.boolean("deleted", { description: "`true` if the job is deleted." });
     t.field("by", {
       type: "User",
       description: "The job's author.",
+      resolve(source, args, context) {
+        return get(query(child(context.db, `/user/${source.by}`))).then(
+          (snapshot) => snapshot.val()
+        );
+      },
     });
     t.string("time", {
       description: "Creation date of the job, in Unix Time.",
@@ -195,7 +265,14 @@ export const Job = objectType({
 
 export const FeedTypeEnum = enumType({
   name: "FeedTypeEnum",
-  members: ["top", "new", "best", "ask", "show", "jobs"],
+  members: {
+    TOP: "topstories",
+    NEW: "newstories",
+    BEST: "beststories",
+    ASK: "askstories",
+    SHOW: "showstories",
+    JOBS: "jobstories",
+  },
 });
 
 export const Query = queryType({
@@ -204,13 +281,31 @@ export const Query = queryType({
       type: "Story",
       description: "feed of stories",
       additionalArgs: {
-        feedType: arg({
-          type: "FeedTypeEnum",
-          default: "top",
-        }),
+        feedType: nonNull(
+          arg({
+            type: "FeedTypeEnum",
+          })
+        ),
       },
-      resolve(source, args, context, info) {
-        return connectionFromArray([], args);
+      async resolve(source, args, context) {
+        const storiesSnapshot = await get(
+          query(child(context.db, args.feedType))
+        );
+        const connection = connectionFromArray<string>(
+          storiesSnapshot.val(),
+          args
+        );
+        const edges = await Promise.all(
+          connection.edges.map(async (edge) => {
+            const nodeSnapshot = await get(
+              query(child(context.db, `/item/${edge.node}`))
+            );
+            const node = nodeSnapshot.val();
+            return { ...edge, node };
+          })
+        );
+
+        return { ...connection, edges };
       },
     });
 
@@ -219,13 +314,17 @@ export const Query = queryType({
       args: {
         id: nonNull(idArg()),
       },
-      resolve(source, args, context, info) {
+      async resolve(source, args, context, info) {
         const { type, id } = fromGlobalId(args.id);
         switch (type) {
           case "User":
-            return context.getUser(id);
+            return get(query(child(context.db, `/user/${id}`))).then(
+              (snapshot) => snapshot.val()
+            );
           default:
-            return context.getItem(id);
+            return get(query(child(context.db, `/item/${id}`))).then(
+              (snapshot) => snapshot.val()
+            );
         }
       },
     });
