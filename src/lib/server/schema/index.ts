@@ -9,13 +9,19 @@ export const schema = makeSchema({
   sourceTypes: {
     modules: [
       {
-        module: join(process.cwd(), "src/types/sourceTypes.ts"),
+        module: join(process.cwd(), "src/lib/server/sourceTypes.ts"),
         alias: "sourceTypes",
       },
     ],
   },
   outputs: {
-    typegen: join(process.cwd(), "src/schema/__generated__/nexus-typegen.ts"),
-    schema: join(process.cwd(), "src/schema/__generated__/schema.graphql"),
+    typegen: join(
+      process.cwd(),
+      "src/lib/server/schema/__generated__/nexus-typegen.ts"
+    ),
+    schema: join(
+      process.cwd(),
+      "src/lib/server/schema/__generated__/schema.graphql"
+    ),
   },
 });

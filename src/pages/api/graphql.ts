@@ -1,19 +1,15 @@
 import { ApolloServerPluginLandingPageGraphQLPlayground } from "apollo-server-core";
 import { ApolloServer } from "apollo-server-micro";
-import { initializeApp } from "firebase/app";
 import { getDatabase, ref } from "firebase/database";
 
 import type { NextApiRequest, NextApiResponse } from "next";
 
-import { schema } from "schema";
-
-initializeApp({
-  databaseURL: "https://hacker-news.firebaseio.com",
-});
+import { hnFirebase } from "lib/server/hnFirebase";
+import { schema } from "lib/server/schema";
 
 const apolloServer = new ApolloServer({
   context() {
-    return { db: ref(getDatabase(), "v0") };
+    return { db: ref(getDatabase(hnFirebase), "v0") };
   },
   schema,
   plugins: [ApolloServerPluginLandingPageGraphQLPlayground({})],
