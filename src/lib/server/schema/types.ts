@@ -71,7 +71,7 @@ export const User = objectType({
         return source.id;
       },
     });
-    t.nonNull.string("created", {
+    t.nonNull.int("created", {
       description: "Creation date of the user, in Unix Time.",
     });
     t.nonNull.int("karma", {
@@ -112,7 +112,7 @@ export const Story = objectType({
       },
     });
     t.boolean("deleted", { description: "`true` if the story is deleted." });
-    t.field("by", {
+    t.nonNull.field("by", {
       type: "User",
       description: "The story's author.",
       resolve(source, args, context) {
@@ -121,7 +121,7 @@ export const Story = objectType({
         );
       },
     });
-    t.string("time", {
+    t.nonNull.int("time", {
       description: "Creation date of the story, in Unix Time.",
     });
     t.string("text", { description: "The story text. HTML." });
@@ -168,7 +168,7 @@ export const Comment = objectType({
       },
     });
     t.boolean("deleted", { description: "`true` if the comment is deleted." });
-    t.field("by", {
+    t.nonNull.field("by", {
       type: "User",
       description: "The comment's author.",
       resolve(source, args, context) {
@@ -177,7 +177,7 @@ export const Comment = objectType({
         );
       },
     });
-    t.string("time", {
+    t.nonNull.int("time", {
       description: "Creation date of the comment, in Unix Time.",
     });
     t.string("text", { description: "The comment text. HTML." });
@@ -239,7 +239,7 @@ export const Job = objectType({
       },
     });
     t.boolean("deleted", { description: "`true` if the job is deleted." });
-    t.field("by", {
+    t.nonNull.field("by", {
       type: "User",
       description: "The job's author.",
       resolve(source, args, context) {
@@ -248,7 +248,7 @@ export const Job = objectType({
         );
       },
     });
-    t.string("time", {
+    t.nonNull.int("time", {
       description: "Creation date of the job, in Unix Time.",
     });
     t.string("text", { description: "The job text. HTML." });
