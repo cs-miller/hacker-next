@@ -18,8 +18,8 @@ interface TopStoriesFeedProps {}
 
 const TopStoriesFeed: React.FC<
   RelayProps<TopStoriesFeedProps, pages_TopStoriesQuery>
-> = ({ preloadedQuery }) => {
-  const query = usePreloadedQuery(TopStoriesQuery, preloadedQuery);
+> = (props) => {
+  const query = usePreloadedQuery(TopStoriesQuery, props.preloadedQuery);
   return <StoryFeed query={query} />;
 };
 

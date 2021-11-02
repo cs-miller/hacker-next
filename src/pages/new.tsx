@@ -18,8 +18,8 @@ interface NewStoriesFeedProps {}
 
 const NewStoriesFeed: React.FC<
   RelayProps<NewStoriesFeedProps, new_NewStoriesQuery>
-> = ({ preloadedQuery }) => {
-  const query = usePreloadedQuery(NewStoriesQuery, preloadedQuery);
+> = (props) => {
+  const query = usePreloadedQuery(NewStoriesQuery, props.preloadedQuery);
   return <StoryFeed query={query} />;
 };
 

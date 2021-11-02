@@ -18,8 +18,8 @@ interface JobsStoriesFeedProps {}
 
 const JobsStoriesFeed: React.FC<
   RelayProps<JobsStoriesFeedProps, jobs_JobsStoriesQuery>
-> = ({ preloadedQuery }) => {
-  const query = usePreloadedQuery(JobsStoriesQuery, preloadedQuery);
+> = (props) => {
+  const query = usePreloadedQuery(JobsStoriesQuery, props.preloadedQuery);
   return <StoryFeed query={query} />;
 };
 
