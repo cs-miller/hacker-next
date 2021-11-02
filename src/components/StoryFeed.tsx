@@ -13,7 +13,7 @@ const StoryFeedPaginationFragment = graphql`
   @argumentDefinitions(
     feedType: { type: "FeedTypeEnum", defaultValue: TOP }
     first: { type: "Int", defaultValue: 30 }
-    after: { type: "String", defaultValue: "" }
+    after: { type: "String" }
   )
   @refetchable(queryName: "StoryFeedPaginationQuery") {
     feed(feedType: $feedType, first: $first, after: $after)
