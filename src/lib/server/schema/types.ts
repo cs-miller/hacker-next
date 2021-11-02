@@ -80,7 +80,7 @@ export const User = objectType({
     t.string("about", {
       description: "The user's optional self-description. HTML.",
     });
-    t.connectionField("submitted", {
+    t.nonNull.connectionField("submitted", {
       type: "Item",
       description: "List of the user's stories, polls and comments.",
       async resolve(source, args, context) {
@@ -126,7 +126,7 @@ export const Story = objectType({
     });
     t.string("text", { description: "The story text. HTML." });
     t.boolean("dead", { description: "`true` if the story is dead." });
-    t.connectionField("kids", {
+    t.nonNull.connectionField("kids", {
       type: "Comment",
       description: "The story's comments, in ranked display order.",
       async resolve(source, args, context) {
@@ -207,7 +207,7 @@ export const Comment = objectType({
         );
       },
     });
-    t.connectionField("kids", {
+    t.nonNull.connectionField("kids", {
       type: "Comment",
       description: "The comment's comments, in ranked display order.",
       async resolve(source, args, context) {
@@ -277,7 +277,7 @@ export const FeedTypeEnum = enumType({
 
 export const Query = queryType({
   definition(t) {
-    t.connectionField("feed", {
+    t.nonNull.connectionField("feed", {
       type: "Story",
       description: "feed of stories",
       additionalArgs: {
