@@ -1,9 +1,9 @@
 import React from "react";
 import Link from "next/link";
 import { graphql, useFragment } from "react-relay";
+import { formatDistanceStrict, fromUnixTime } from "date-fns/fp";
 
 import { StoryCard_story$key } from "__generated__/StoryCard_story.graphql";
-import { formatDistanceStrict, fromUnixTime } from "date-fns/fp";
 
 const StoryCardFragment = graphql`
   fragment StoryCard_story on Story {
