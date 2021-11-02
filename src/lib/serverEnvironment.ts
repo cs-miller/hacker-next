@@ -1,4 +1,3 @@
-import { graphql } from "graphql";
 import { withHydrateDatetime } from "relay-nextjs/date";
 import {
   Environment,
@@ -7,20 +6,12 @@ import {
   RecordSource,
   Store,
 } from "relay-runtime";
-import { getDatabase, ref } from "firebase/database";
 
-import { schema } from "./server/schema";
-import { hnFirebase } from "./server/hnFirebase";
+import { executeGraphQL } from "lib/server/executeGraphQL";
 
 export function createServerNetwork() {
   return Network.create(async (request, variables) => {
-    const results = await graphql(
-      schema,
-      request.text as string,
-      {},
-      { db: ref(getDatabase(hnFirebase), "v0") },
-      variables
-    );
+    const results = await executeGraphQL(request.text as string, variables);
 
     const data = JSON.parse(
       JSON.stringify(results),
