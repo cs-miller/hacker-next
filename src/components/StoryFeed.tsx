@@ -5,6 +5,7 @@ import type { StoryFeedPaginationFragment$key } from "__generated__/StoryFeedPag
 import type { StoryFeedPaginationQuery } from "__generated__/StoryFeedPaginationQuery.graphql";
 
 import { StoryCard } from "components/StoryCard";
+import { ConstrainedLayout } from "./ConstrainedLayout";
 
 const StoryFeedPaginationFragment = graphql`
   fragment StoryFeedPaginationFragment on Query
@@ -37,11 +38,13 @@ export const StoryFeed: React.FC<StoryFeedProps> = (props) => {
   >(StoryFeedPaginationFragment, props.query);
 
   return (
-    <ul role="list" className="space-y-3">
-      {(data.feed.edges ?? []).map((edge) => {
-        if (edge && edge.node)
-          return <StoryCard key={edge.cursor} story={edge.node} />;
-      })}
-    </ul>
+    <ConstrainedLayout>
+      <ul role="list" className="space-y-3">
+        {(data.feed.edges ?? []).map((edge) => {
+          if (edge && edge.node)
+            return <StoryCard key={edge.cursor} story={edge.node} />;
+        })}
+      </ul>
+    </ConstrainedLayout>
   );
 };
