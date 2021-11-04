@@ -2,6 +2,7 @@
  * @type {import('next').NextConfig}
  */
 const nextConfig = {
+  reactStrictMode: true,
   webpack: (config, { isServer, webpack }) => {
     if (!isServer) {
       // Ensures no server modules are included on the client.
