@@ -112,7 +112,7 @@ export const Story = objectType({
       },
     });
     t.boolean("deleted", { description: "`true` if the story is deleted." });
-    t.nonNull.field("by", {
+    t.field("by", {
       type: "User",
       description: "The story's author.",
       resolve(source, args, context) {
@@ -239,7 +239,7 @@ export const Job = objectType({
       },
     });
     t.boolean("deleted", { description: "`true` if the job is deleted." });
-    t.nonNull.field("by", {
+    t.field("by", {
       type: "User",
       description: "The job's author.",
       resolve(source, args, context) {
