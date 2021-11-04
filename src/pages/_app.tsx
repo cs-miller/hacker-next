@@ -5,8 +5,8 @@ import { getInitialPreloadedQuery, getRelayProps } from "relay-nextjs/app";
 import "tailwindcss/tailwind.css";
 
 import { getClientEnvironment } from "lib/clientEnvironment";
-import { ConstrainedLayout } from "../components/ConstrainedLayout";
-import { Header } from "../components/Header";
+import { ConstrainedLayout } from "components/ConstrainedLayout";
+import { Header } from "components/Header";
 
 const clientEnv = getClientEnvironment();
 const initialPreloadedQuery = getInitialPreloadedQuery({

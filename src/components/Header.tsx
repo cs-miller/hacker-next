@@ -1,5 +1,6 @@
 import * as React from "react";
 import Link from "next/link";
+import { NavLink } from "components/NavLink";
 
 export const Header: React.FC = () => {
   return (
@@ -10,21 +11,13 @@ export const Header: React.FC = () => {
         </Link>
       </strong>
       <span> </span>
-      <Link href="/new">
-        <a>new</a>
-      </Link>
+      <NavLink href="/new">new</NavLink>
       <span> | </span>
-      <Link href="/ask">
-        <a>ask</a>
-      </Link>
+      <NavLink href="/ask">ask</NavLink>
       <span> | </span>
-      <Link href="/show">
-        <a>show</a>
-      </Link>
+      <NavLink href="/show">show</NavLink>
       <span> | </span>
-      <Link href="/jobs">
-        <a>jobs</a>
-      </Link>
+      <NavLink href="/jobs">jobs</NavLink>
     </header>
   );
 };
