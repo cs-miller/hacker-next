@@ -55,22 +55,24 @@ export const StoryCard: React.FC<StoryCardProps> = (props) => {
           <span>
             by{" "}
             <Link href={`/user/${story.by.id}`}>
-              <a>{story.by.username}</a>
+              <a className="hover:underline">{story.by.username}</a>
             </Link>{" "}
           </span>
         )}
-        <span>{formatDistanceStrict(Date.now(), creationDate)} ago</span>{" "}
+        <Link href={`/story/${story.id}`}>
+          <a className="hover:underline">
+            {formatDistanceStrict(Date.now(), creationDate)} ago
+          </a>
+        </Link>{" "}
         {hasDescendants ? (
-          <span>
-            <Link href={`/story/${story.id}`}>
-              <a>
-                {story.descendants} comment{story.descendants !== 1 && "s"}
-              </a>
-            </Link>
-          </span>
+          <Link href={`/story/${story.id}`}>
+            <a className="hover:underline">
+              {story.descendants} comment{story.descendants !== 1 && "s"}
+            </a>
+          </Link>
         ) : (
           <Link href={`/story/${story.id}`}>
-            <a>discuss</a>
+            <a className="hover:underline">discuss</a>
           </Link>
         )}
       </div>
