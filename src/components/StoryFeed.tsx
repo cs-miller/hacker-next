@@ -39,14 +39,11 @@ export const StoryFeed: React.FC<StoryFeedProps> = (props) => {
   >(StoryFeedPaginationFragment, props.query);
 
   return (
-    <ConstrainedLayout>
-      <Header />
-      <ul role="list" className="space-y-3">
-        {(data.feed.edges ?? []).map((edge) => {
-          if (edge && edge.node)
-            return <StoryCard key={edge.cursor} story={edge.node} />;
-        })}
-      </ul>
-    </ConstrainedLayout>
+    <ul role="list" className="space-y-3">
+      {(data.feed.edges ?? []).map((edge) => {
+        if (edge && edge.node)
+          return <StoryCard key={edge.cursor} story={edge.node} />;
+      })}
+    </ul>
   );
 };
