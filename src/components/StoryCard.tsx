@@ -32,6 +32,7 @@ export const StoryCard: React.FC<StoryCardProps> = (props) => {
 
   const hasUrl = story.url !== null;
   const hasDescendants = story.descendants && story.descendants > 0;
+  const hasAuthor = story.by !== null;
   const creationDate = fromUnixTime(story.time);
 
   return (
@@ -50,12 +51,14 @@ export const StoryCard: React.FC<StoryCardProps> = (props) => {
         <span>
           {story.score ?? 0} point{story.score !== 1 && "s"}{" "}
         </span>
-        <span>
-          by{" "}
-          <Link href={`/user/${story.by.id}`}>
-            <a>{story.by.username}</a>
-          </Link>{" "}
-        </span>
+        {hasAuthor && (
+          <span>
+            by{" "}
+            <Link href={`/user/${story.by.id}`}>
+              <a>{story.by.username}</a>
+            </Link>{" "}
+          </span>
+        )}
         <span>{formatDistanceStrict(Date.now(), creationDate)} ago</span>{" "}
         {hasDescendants ? (
           <span>
