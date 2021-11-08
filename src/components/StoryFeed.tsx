@@ -5,8 +5,6 @@ import type { StoryFeedPaginationFragment$key } from "__generated__/StoryFeedPag
 import type { StoryFeedPaginationQuery } from "__generated__/StoryFeedPaginationQuery.graphql";
 
 import { StoryCard } from "components/StoryCard";
-import { ConstrainedLayout } from "components/ConstrainedLayout";
-import { Header } from "components/Header";
 
 const StoryFeedPaginationFragment = graphql`
   fragment StoryFeedPaginationFragment on Query
